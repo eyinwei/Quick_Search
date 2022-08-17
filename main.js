@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Onestep Search - 一键快搜
 // @namespace   https://greasyfork.org/zh-CN/scripts/440000
-// @version     2.0
+// @version     2.0.1
 // @author      eyinwei
 // @description 无缝集成 划词搜索 + 快捷键搜索 + 搜索跳转 + 网址导航, 享受丝滑搜索体验
 // @homepageURL none
@@ -43,14 +43,14 @@
                 enable: _enable,
             };
         };
-        this.callSiteInformationNoHomepage = function (_enable = true) {
-            return {
-                name: _name,
-                url: _url,
-                icon: _icon,
-                enable: _enable,
-            };
-        };
+        // this.callSiteInformationNoHomepage = function (_enable = true) {
+        //     return {
+        //         name: _name,
+        //         url: _url,
+        //         icon: _icon,
+        //         enable: _enable,
+        //     };
+        // };
     };
     // 百度系列
     const Baidu = new SiteInfo('百度', 'https://www.baidu.com/s?wd=%s&ie=utf-8', 'https://www.baidu.com/', 'https://www.baidu.com/favicon.ico');
@@ -85,7 +85,7 @@
     const Tianmao = new SiteInfo('天猫', 'https://list.tmall.com/search_product.htm?q=%s', 'https://www.tmall.com/', 'https://www.tmall.com/favicon.ico');
     const Maimai = new SiteInfo('脉脉', 'https://maimai.cn/web/search_center?type=gossip&query=%s&highlight=true', 'https://maimai.cn/feed_list', 'https://maimai.cn/favicon.ico');
     const Weibo = new SiteInfo('微博', 'https://s.weibo.com/weibo/%s', 'https://weibo.com/', 'https://s.weibo.com/favicon.ico');
-    const GitHub = new SiteInfo('GitHub', 'https://github.com/search?q=%s', 'https://s2.loli.net/2022/08/17/eE465yn1h2jxiRL.png');
+    const GitHub = new SiteInfo('GitHub', 'https://github.com/search?q=%s', 'https://s2.loli.net/2022/08/17/OedrPVhtkn5Mug4.png');
 
     //=========================定义网站数据=======================================
 
@@ -316,7 +316,7 @@
                 enable: true,
                 engines: [
 
-                    Baidufanyi.callSiteInformationNoHomepage(),
+                    Baidufanyi.callSiteInformation(),
                     Googlefanyi.callSiteInformation(),
 
                     {
@@ -363,7 +363,7 @@
                 enable: true,
                 engines: [
 
-                    Baidumap.callSiteInformationNoHomepage(),
+                    Baidumap.callSiteInformation(),
                     {
                         name: '高德地图',
                         url: 'https://www.amap.com/search?query=%s',
@@ -380,7 +380,7 @@
                 enable: true,
                 engines: [
 
-                    Baidutupian.callSiteInformationNoHomepage(),
+                    Baidutupian.callSiteInformation(),
                     {
                         name: '搜狗图片',
                         url: 'https://pic.sogou.com/pics?query=%s',
@@ -492,7 +492,7 @@
                 enable: true,
                 engines: [
                     Baiduwangpan.callSiteInformation(),
-
+    
                 ]
             },*/
             {
@@ -502,7 +502,7 @@
                     Googlexueshu.callSiteInformation(),
 
 
-                    Baiduxueshu.callSiteInformationNoHomepage(),
+                    Baiduxueshu.callSiteInformation(),
                     {
                         name: '知网',
                         url: 'http://epub.cnki.net/kns/brief/default_result.aspx?txt_1_value1=%s&dbPrefix=SCDB&db_opt=CJFQ%2CCJFN%2CCDFD%2CCMFD%2CCPFD%2CIPFD%2CCCND%2CCCJD%2CHBRD&singleDB=SCDB&action=scdbsearch',
@@ -580,7 +580,7 @@
                 enable: false,
                 engines: [
                     Googlenews.callSiteInformation(),
-                    Baiduxinwen.callSiteInformationNoHomepage(),
+                    Baiduxinwen.callSiteInformation(),
                     {
                         name: '今日头条',
                         url: 'https://www.toutiao.com/search/?keyword=%s',
