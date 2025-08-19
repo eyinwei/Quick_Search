@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Onestep Search - 一键快搜
 // @namespace   https://greasyfork.org/zh-CN/scripts/440000
-// @version     2.0.1
+// @version     2.1
 // @author      eyinwei
 // @description 无缝集成 划词搜索 + 快捷键搜索 + 搜索跳转 + 网址导航, 享受丝滑搜索体验
 // @homepageURL none
@@ -27,901 +27,516 @@
     ///////////////////////////////////////////////////////////////////
 
 
-    //=========================定义网站数据=======================================
-    function SiteInfo(_name, _url, _homepage, _icon) {
-        this.name = _name;
-        this.url = _url;
-        this.home = _homepage;
-        this.icon = _icon;
+	//=========================定义网站数据=======================================
+	function SiteInfo(_name, _url, _homepage, _icon) {
+		this.name = _name;
+		this.url = _url;
+		this.home = _homepage;
+		this.icon = _icon;
 
-        this.callSiteInformation = function (_enable = true) {
-            return {
-                name: _name,
-                url: _url,
-                home: _homepage,
-                icon: _icon,
-                enable: _enable,
-            };
-        };
-        // this.callSiteInformationNoHomepage = function (_enable = true) {
-        //     return {
-        //         name: _name,
-        //         url: _url,
-        //         icon: _icon,
-        //         enable: _enable,
-        //     };
-        // };
-    };
-    // 百度系列
-    const Baidu = new SiteInfo('百度', 'https://www.baidu.com/s?wd=%s&ie=utf-8', 'https://www.baidu.com/', 'https://www.baidu.com/favicon.ico');
-    const Baidufanyi = new SiteInfo('百度翻译', 'https://fanyi.baidu.com/#auto/zh/%s', 'https://fanyi.baidu.com/', 'https://fanyi-cdn.cdn.bcebos.com/webStatic/translation/img/favicon/favicon.ico');
-    const Baiduwangpan = new SiteInfo('百度网盘', 'https://pan.baidu.com/disk/home?#/search?key=%s', 'https://pan.baidu.com/', 'https://nd-static.bdstatic.com/m-static/v20-main/favicon-main.ico');
-    const Baidubaike = new SiteInfo('百度百科', 'https://baike.baidu.com/search/word?pic=1&sug=1&word=%s', 'https://baike.baidu.com/', 'https://baike.baidu.com/favicon.ico');
-    const Baiduzhidao = new SiteInfo('百度知道', 'https://zhidao.baidu.com/search?word=%s', 'https://zhidao.baidu.com/', 'https://www.baidu.com/favicon.ico?t=20171027');
-    const Baiduxinwen = new SiteInfo('百度新闻', 'https://www.baidu.com/s?rtt=1&bsst=1&cl=2&tn=news&rsv_dl=ns_pc&word=%s', 'http://news.baidu.com/', 'https://www.baidu.com/favicon.ico');
-    const Baiduwenku = new SiteInfo('百度文库', 'https://wenku.baidu.com/search?word=%s', '', 'https://www.baidu.com/favicon.ico');
-    const Baidumap = new SiteInfo('百度地图', 'https://map.baidu.com/search?querytype=s&wd=%s', '', 'https://map.baidu.com/favicon.ico');
-    const Baidutupian = new SiteInfo('百度图片', 'https://image.baidu.com/search/index?tn=baiduimage&ie=utf-8&word=%s', '', 'https://www.baidu.com/favicon.ico');
-    const Baiduxueshu = new SiteInfo('百度学术', 'http://xueshu.baidu.com/s?wd=%s', '', 'https://www.baidu.com/favicon.ico');
-    const Baidutieba = new SiteInfo('贴吧', 'https://tieba.baidu.com/f?kw=%s&ie=utf-8', 'https://tieba.baidu.com/', 'https://www.baidu.com/favicon.ico');
+		this.callSiteInformation = function (_enable = true) {
+			return {
+				name: _name,
+				url: _url,
+				home: _homepage,
+				icon: _icon,
+				enable: _enable,
+			};
+		};
+	};
 
+	// ========================= 前置统一定义所有网站 =========================
+	// 百度系列
+	const Baidu = new SiteInfo('百度', 'https://www.baidu.com/s?wd=%s&ie=utf-8', 'https://www.baidu.com/', 'https://www.baidu.com/favicon.ico');
+	const Baidufanyi = new SiteInfo('百度翻译', 'https://fanyi.baidu.com/#auto/zh/%s', 'https://fanyi.baidu.com/', 'https://fanyi-cdn.cdn.bcebos.com/webStatic/translation/img/favicon/favicon.ico');
+	const Baiduwangpan = new SiteInfo('百度网盘', 'https://pan.baidu.com/disk/home?#/search?key=%s', 'https://pan.baidu.com/', 'https://nd-static.bdstatic.com/m-static/v20-main/favicon-main.ico');
+	const Baidubaike = new SiteInfo('百度百科', 'https://baike.baidu.com/search/word?pic=1&sug=1&word=%s', 'https://baike.baidu.com/', 'https://baike.baidu.com/favicon.ico');
+	const Baiduzhidao = new SiteInfo('百度知道', 'https://zhidao.baidu.com/search?word=%s', 'https://zhidao.baidu.com/', 'https://www.baidu.com/favicon.ico?t=20171027');
+	const Baiduxinwen = new SiteInfo('百度新闻', 'https://www.baidu.com/s?rtt=1&bsst=1&cl=2&tn=news&rsv_dl=ns_pc&word=%s', 'http://news.baidu.com/', 'https://www.baidu.com/favicon.ico');
+	const Baiduwenku = new SiteInfo('百度文库', 'https://wenku.baidu.com/search?word=%s', '', 'https://www.baidu.com/favicon.ico');
+	const Baidumap = new SiteInfo('百度地图', 'https://map.baidu.com/search?querytype=s&wd=%s', '', 'https://map.baidu.com/favicon.ico');
+	const Baidutupian = new SiteInfo('百度图片', 'https://image.baidu.com/search/index?tn=baiduimage&ie=utf-8&word=%s', '', 'https://www.baidu.com/favicon.ico');
+	const Baiduxueshu = new SiteInfo('百度学术', 'http://xueshu.baidu.com/s?wd=%s', '', 'https://www.baidu.com/favicon.ico');
+	const Baidutieba = new SiteInfo('贴吧', 'https://tieba.baidu.com/f?kw=%s&ie=utf-8', 'https://tieba.baidu.com/', 'https://www.baidu.com/favicon.ico');
 
-    // 谷歌系列
-    const Google = new SiteInfo('谷歌', 'https://www.google.com/search?q=%s&ie=utf-8&oe=utf-8', 'https://www.google.com/', 'https://s2.loli.net/2022/08/16/QUL3cvA4t7Tx5sE.png');
-    const Googlefanyi = new SiteInfo('谷歌翻译', 'https://translate.google.com/?q=%s', '', 'https://ssl.gstatic.com/translate/favicon.ico');
-    const Googlemap = new SiteInfo('谷歌地图', 'https://www.google.com/maps/search/%s', 'https://www.google.com/maps/', 'https://s2.loli.net/2022/08/17/SloXZzf9nC6LPbq.png');
-    const Googleearth = new SiteInfo('谷歌地球', 'https://earth.google.com/web/search/%s', 'https://earth.google.com/web/', 'https://s2.loli.net/2022/08/17/IOiPDl7YX3QnmsC.png');
-    const Googlexueshu = new SiteInfo('谷歌学术', 'https://scholar.google.com/scholar?hl=zh-CN&q=%s', '', 'https://s2.loli.net/2022/08/17/4BaC1Acu2ebXJR9.png');
-    const Googlepic = new SiteInfo('谷歌图片', 'https://www.google.com/search?q=%s&tbm=isch', 'https://www.google.com/imghp?hl=zh-CN', Google.icon);
-    const Googlenews = new SiteInfo('谷歌新闻', 'https://news.google.com/search?q=%s&hl=zh-CN&gl=CN&ceid=CN:zh-Hans', 'https://news.google.com/topstories?hl=zh-CN&gl=CN&ceid=CN:zh-Hans', 'https://s2.loli.net/2022/08/17/RTdZQMD2Aw8eobn.png');
+	// 谷歌系列
+	const Google = new SiteInfo('谷歌', 'https://www.google.com/search?q=%s&ie=utf-8&oe=utf-8', 'https://www.google.com/', 'https://s2.loli.net/2022/08/16/QUL3cvA4t7Tx5sE.png');
+	const Googlefanyi = new SiteInfo('谷歌翻译', 'https://translate.google.com/?q=%s', '', 'https://ssl.gstatic.com/translate/favicon.ico');
+	const Googlemap = new SiteInfo('谷歌地图', 'https://www.google.com/maps/search/%s', 'https://www.google.com/maps/', 'https://s2.loli.net/2022/08/17/SloXZzf9nC6LPbq.png');
+	const Googleearth = new SiteInfo('谷歌地球', 'https://earth.google.com/web/search/%s', 'https://earth.google.com/web/', 'https://s2.loli.net/2022/08/17/IOiPDl7YX3QnmsC.png');
+	const Googlexueshu = new SiteInfo('谷歌学术', 'https://scholar.google.com/scholar?hl=zh-CN&q=%s', '', 'https://s2.loli.net/2022/08/17/4BaC1Acu2ebXJR9.png');
+	const Googlepic = new SiteInfo('谷歌图片', 'https://www.google.com/search?q=%s&tbm=isch', 'https://www.google.com/imghp?hl=zh-CN', Google.icon);
+	const Googlenews = new SiteInfo('谷歌新闻', 'https://news.google.com/search?q=%s&hl=zh-CN&gl=CN&ceid=CN:zh-Hans', 'https://news.google.com/topstories?hl=zh-CN&gl=CN&ceid=CN:zh-Hans', 'https://s2.loli.net/2022/08/17/RTdZQMD2Aw8eobn.png');
 
+	// 其他常用网站
+	const StackOverflow = new SiteInfo('StackOverflow', 'https://stackoverflow.com/search?q=%s', '', 'https://s2.loli.net/2022/08/16/mgMHa8UTekYIdV4.png');
+	const Zhihu = new SiteInfo('知乎', 'https://www.zhihu.com/search?q=%s', 'https://www.zhihu.com/', 'https://static.zhihu.com/heifetz/favicon.ico');
+	const Bing = new SiteInfo('必应', 'https://cn.bing.com/search?q=%s', 'https://cn.bing.com/', 'https://s2.loli.net/2022/08/16/3uWMUjDVAlS8c9T.png');
+	const Bilibili = new SiteInfo('哔哩哔哩', 'https://search.bilibili.com/all?keyword=%s', 'https://www.bilibili.com/', 'https://www.bilibili.com/favicon.ico?v=1');
+	const Taobao = new SiteInfo('淘宝', 'https://s.taobao.com/search?q=%s', 'https://www.taobao.com/', 'https://www.taobao.com/favicon.ico');
+	const Jingdong = new SiteInfo('京东', 'https://search.jd.com/Search?keyword=%s&enc=utf-8', 'https://www.jd.com/', 'https://search.jd.com/favicon.ico');
+	const Tianmao = new SiteInfo('天猫', 'https://list.tmall.com/search_product.htm?q=%s', 'https://www.tmall.com/', 'https://www.tmall.com/favicon.ico');
+	const Maimai = new SiteInfo('脉脉', 'https://maimai.cn/web/search_center?type=gossip&query=%s&highlight=true', 'https://maimai.cn/feed_list', 'https://maimai.cn/favicon.ico');
+	const Weibo = new SiteInfo('微博', 'https://s.weibo.com/weibo/%s', 'https://weibo.com/', 'https://s.weibo.com/favicon.ico');
+	const GitHub = new SiteInfo('GitHub', 'https://github.com/search?q=%s', 'https://favicon.im/github.com');
+	const Sougou = new SiteInfo('搜狗', 'https://www.sogou.com/web?query=%s', 'https://dlweb.sogoucdn.com/translate/favicon.ico?v=20180424');
 
-    const StackOverflow = new SiteInfo('StackOverflow', 'https://stackoverflow.com/search?q=%s', '', 'https://s2.loli.net/2022/08/16/mgMHa8UTekYIdV4.png');
-    const Zhihu = new SiteInfo('知乎', 'https://www.zhihu.com/search?q=%s', 'https://www.zhihu.com/', 'https://static.zhihu.com/heifetz/favicon.ico');
-    const Bing = new SiteInfo('必应', 'https://cn.bing.com/search?q=%s', 'https://cn.bing.com/', 'https://s2.loli.net/2022/08/16/3uWMUjDVAlS8c9T.png');
-    const Bilibili = new SiteInfo('哔哩哔哩', 'https://search.bilibili.com/all?keyword=%s', 'https://www.bilibili.com/', 'https://www.bilibili.com/favicon.ico?v=1');
-    const Taobao = new SiteInfo('淘宝', 'https://s.taobao.com/search?q=%s', 'https://www.taobao.com/', 'https://www.taobao.com/favicon.ico');
-    const Jingdong = new SiteInfo('京东', 'https://search.jd.com/Search?keyword=%s&enc=utf-8', 'https://www.jd.com/', 'https://search.jd.com/favicon.ico');
-    const Tianmao = new SiteInfo('天猫', 'https://list.tmall.com/search_product.htm?q=%s', 'https://www.tmall.com/', 'https://www.tmall.com/favicon.ico');
-    const Maimai = new SiteInfo('脉脉', 'https://maimai.cn/web/search_center?type=gossip&query=%s&highlight=true', 'https://maimai.cn/feed_list', 'https://maimai.cn/favicon.ico');
-    const Weibo = new SiteInfo('微博', 'https://s.weibo.com/weibo/%s', 'https://weibo.com/', 'https://s.weibo.com/favicon.ico');
-    const GitHub = new SiteInfo('GitHub', 'https://github.com/search?q=%s', 'https://s2.loli.net/2022/08/17/OedrPVhtkn5Mug4.png');
+	// 新增网站定义
+	const So360 = new SiteInfo('360', 'https://www.so.com/s?ie=utf-8&q=%s', 'https://www.so.com/', 'https://s.ssl.qhimg.com/static/121a1737750aa53d.ico');
+	const Quora = new SiteInfo('Quora', 'https://www.quora.com/search?q=%s', 'https://www.quora.com/', 'https://favicon.im/www.quora.com');
+	const Wikipedia = new SiteInfo('维基百科', 'https://zh.wikipedia.org/wiki/%s', 'https://zh.wikipedia.org/', 'https://s2.loli.net/2022/08/17/uycfXb6FIGRV5mN.png');
+	const Moegirl = new SiteInfo('萌娘百科', 'https://zh.moegirl.org/%s', 'https://zh.moegirl.org.cn/', 'https://zh.moegirl.org.cn/favicon.ico');
+	const Docin = new SiteInfo('豆丁文档', 'https://www.docin.com/search.do?searchcat=2&searchType_banner=p&nkey=%s', 'https://www.docin.com/', 'https://st.douding.cn/images_cn/topic/favicon.ico?rand=24220809');
+	const DoubanBook = new SiteInfo('豆瓣读书', 'https://search.douban.com/book/subject_search?search_text=%s', 'https://book.douban.com/', 'https://www.douban.com/favicon.ico');
+	const WeixinSogou = new SiteInfo('微信(搜狗)', 'https://weixin.sogou.com/weixin?ie=utf8&type=2&query=%s', 'https://weixin.sogou.com/', 'https://dlweb.sogoucdn.com/translate/favicon.ico?v=20180424');
+	const Guokr = new SiteInfo('果壳', 'https://www.guokr.com/search/all/?wd=%s', 'https://www.guokr.com/', 'https://www.guokr.com/favicon.ico');
+	const ApacheIssues = new SiteInfo('Apache Issues', 'https://issues.apache.org/jira/secure/QuickSearch.jspa?searchString=%s', 'https://issues.apache.org/jira/', 'https://favicon.im/issues.apache.org');
+	const Maven = new SiteInfo('Maven', 'https://mvnrepository.com/search?q=%s', 'https://mvnrepository.com/', 'https://favicon.im/mvnrepository.com');
+	const Youdao = new SiteInfo('有道词典', 'https://youdao.com/w/%s', 'https://youdao.com/', 'https://shared-https.ydstatic.com/images/favicon.ico');
+	const Bingfanyi = new SiteInfo('必应翻译', 'https://cn.bing.com/dict/search?q=%s', 'https://www.bing.com/dict', Bing.icon);
+	const Haici = new SiteInfo('海词词典', 'http://dict.cn/%s', 'http://dict.cn/', 'http://i1.haidii.com/favicon.ico');
+	const CNKIfanyi = new SiteInfo('CNKI翻译', 'http://dict.cnki.net/dict_result.aspx?scw=%s', 'http://dict.cnki.net/', 'https://epub.cnki.net/favicon.ico');
+	const Zdic = new SiteInfo('汉典', 'https://www.zdic.net/hans/%s', 'https://www.zdic.net/', 'https://www.zdic.net/favicon.ico');
+	const Deepl = new SiteInfo('deepL', 'https://www.deepl.com/translator#en/zh/%s', 'https://www.deepl.com/', 'https://s2.loli.net/2022/08/17/m3H5BdLRAexbVsz.png');
+	const GaodeMap = new SiteInfo('高德地图', 'https://www.amap.com/search?query=%s', 'https://www.amap.com/', 'https://a.amap.com/pc/static/favicon.ico');
+	const SogouPic = new SiteInfo('搜狗图片', 'https://pic.sogou.com/pics?query=%s', 'https://pic.sogou.com/', 'https://dlweb.sogoucdn.com/translate/favicon.ico?v=20180424');
+	const BingPic = new SiteInfo('必应图片', 'https://www.bing.com/images/search?q=%s', 'https://www.bing.com/images/trending', Bing.icon);
+	const Pixiv = new SiteInfo('pixiv', 'https://www.pixiv.net/tags/%s', 'https://www.pixiv.net/', 'https://s2.loli.net/2022/08/17/OxGZLn26TlWyQt9.png');
+	const Flickr = new SiteInfo('flickr', 'https://www.flickr.com/search/?q=%s', 'https://www.flickr.com/', 'https://combo.staticflickr.com/pw/favicon.ico');
+	const Huaban = new SiteInfo('花瓣', 'https://huaban.com/search/?q=%s', 'https://huaban.com/', 'https://huaban.com/favicon.ico');
+	const NeteaseMusic = new SiteInfo('网易云音乐', 'https://music.163.com/#/search/m/?s=%s', 'https://music.163.com/', 'https://s1.music.126.net/style/favicon.ico?v20180823');
+	const QQMusic = new SiteInfo('QQ音乐', 'https://y.qq.com/portal/search.html#page=1&searchid=1&remoteplace=txt.yqq.top&t=song&w=%s', 'https://y.qq.com/', 'https://y.qq.com/favicon.ico?max_age=2592000');
+	const KuwoMusic = new SiteInfo('酷我音乐', 'http://www.kuwo.cn/search/list?type=all&key=%s', 'http://www.kuwo.cn/', 'http://www.kuwo.cn/favicon.ico');
+	const MiguMusic = new SiteInfo('咪咕音乐', 'https://music.migu.cn/v3', 'https://music.migu.cn/', 'https://music.migu.cn/favicon.ico');
+	const Kugou5sing = new SiteInfo('酷狗5sing', 'http://search.5sing.kugou.com/?keyword=%s', 'http://5sing.kugou.com/index.html', 'http://5sing.kugou.com/favicon.ico');
+	const Dangdang = new SiteInfo('当当', 'http://search.dangdang.com/?key=%s&act=input', 'http://www.dangdang.com/', 'http://www.dangdang.com/favicon.ico');
+	const Suning = new SiteInfo('苏宁', 'https://search.suning.com/%s/', 'https://www.suning.com/', 'https://www.suning.com/favicon.ico');
+	const Amazon = new SiteInfo('亚马逊', 'https://www.amazon.cn/s?k=%s', 'https://www.amazon.cn/', 'https://www.amazon.cn/favicon.ico');
+	const CNKI = new SiteInfo('知网', 'http://epub.cnki.net/kns/brief/default_result.aspx?txt_1_value1=%s&dbPrefix=SCDB&db_opt=CJFQ%2CCJFN%2CCDFD%2CCMFD%2CCPFD%2CIPFD%2CCCND%2CCCJD%2CHBRD&singleDB=SCDB&action=scdbsearch', 'http://epub.cnki.net/', 'https://epub.cnki.net/favicon.ico');
+	const Wanfang = new SiteInfo('万方', 'http://www.wanfangdata.com.cn/search/searchList.do?searchType=all&searchWord=%s', 'http://www.wanfangdata.com.cn/', 'https://cdn.s.wanfangdata.com.cn/favicon.ico');
+	const WOS = new SiteInfo('WOS', 'http://apps.webofknowledge.com/UA_GeneralSearch.do?fieldCount=3&action=search&product=UA&search_mode=GeneralSearch&max_field_count=25&max_field_notice=Notice%3A+You+cannot+add+another+field.&input_invalid_notice=Search+Error%3A+Please+enter+a+search+term.&input_invalid_notice_limits=+%3Cbr%2F%3ENote%3A+Fields+displayed+in+scrolling+boxes+must+be+combined+with+at+least+one+other+search+field.&sa_img_alt=Select+terms+from+the+index&value(input1)=%s&value%28select1%29=TI&value%28hidInput1%29=initVoid&value%28hidShowIcon1%29=0&value%28bool_1_2%29=AND&value%28input2%29=&value%28select2%29=AU&value%28hidInput2%29=initAuthor&value%28hidShowIcon2%29=1&value%28bool_2_3%29=AND&value%28input3%29=&value%28select3%29=SO&value%28hidInput3%29=initSource&value%28hidShowIcon3%29=1&limitStatus=collapsed&expand_alt=Expand+these+settings&expand_title=Expand+these+settings&collapse_alt=Collapse+these+settings&collapse_title=Collapse+these+settings&SinceLastVisit_UTC=&SinceLastVisit_DATE=×panStatus=display%3A+block&timeSpanCollapsedListStatus=display%3A+none&period=Range+Selection&range=ALL&ssStatus=display%3Anone&ss_lemmatization=On&ss_query_language=&rsStatus=display%3Anone&rs_rec_per_page=10&rs_sort_by=PY.D%3BLD.D%3BVL.D%3BSO.A%3BPG.A%3BAU.A&rs_refinePanel=visibility%3Ashow', 'http://apps.webofknowledge.com/', 'https://favicon.im/clarivate.com');
+	const Springer = new SiteInfo('Springer', 'http://rd.springer.com/search?query=%s', 'http://rd.springer.com/', 'https://link.springer.com/oscar-static/img/favicons/darwin/favicon-de0c289efe.ico');
+	const Letpub = new SiteInfo('Letpub', 'https://www.letpub.com.cn/index.php?page=journalapp&view=search&searchsort=relevance&searchname=%s', 'https://www.letpub.com.cn/', 'https://www.letpub.com.cn/images/favicon.ico');
+	const Ablesci = new SiteInfo('科研通', 'https://www.ablesci.com/journal/index?keywords=%s', 'https://www.ablesci.com/', 'https://www.ablesci.com/favicon.ico/');
+	const Douban = new SiteInfo('豆瓣', 'https://www.douban.com/search?q=%s', 'https://www.douban.com/', 'https://www.douban.com/favicon.ico');
+	const Twitter = new SiteInfo('Twitter', 'https://twitter.com/search?q=%s', 'https://twitter.com/', 'https://s2.loli.net/2022/08/17/rsbLXJA1lG5hmfe.png');
+	const Facebook = new SiteInfo('Facebook', 'https://www.facebook.com/search/results.php?q=%s', 'https://www.facebook.com/', 'https://s2.loli.net/2022/08/17/69R4ObX3kUctNvM.png');
+	const Toutiao = new SiteInfo('今日头条', 'https://www.toutiao.com/search/?keyword=%s', 'https://www.toutiao.com/', 'https://lf3-search.searchpstatp.com/obj/card-system/favicon_5995b44.ico');
 
-    //=========================定义网站数据=======================================
+	//=========================定义网站数据=======================================
 
-    const defaultConf = {
-        //
-        // 基本配置
-        //
-        showToolbar: true,              // 显示划词工具条
-        showFrequentEngines: true,      // 显示常用搜索引擎
-        showClassifiedEngines: true,    // 显示分类搜索引擎
-        showPlaceholder: false,          // 显示使用方式提示信息(如搜索框placeholder)
-        enableOnInput: true,            // 是否在input/textarea上启用划词和快捷键
-        autoCopyToClipboard: false,     // 划词时自动复制到剪贴板(内容为文本格式)
-        //
-        // 搜索建议配置
-        //
-        // 可选值baidu|google, 可根据需要调整顺序
-        engineSuggestions: [
-            {
-                name: 'google',
-                showCount: 5,
-                enable: false
-            },
-            {
-                name: 'baidu',
-                showCount: 5,
-                enable: false
-            },
-        ],
-        //
-        // 搜索框默认搜索引擎
-        // 属性:
-        //   - name 搜索引擎名称
-        //   - url 搜索引擎搜索url
-        //   - home 搜索引擎主页url
-        //
-        defaultEngine: {
-            name: Bing.name,
-            url: Bing.url,
-            home: Bing.home,
-
-        },
-        //
-        // 绑定快捷键的搜索引擎列表
-        // 属性:
-        //   - name 搜索引擎名称
-        //   - url 搜索引擎搜索url
-        //   - home 搜索引擎主页url
-        //   - hotkeys 快捷键列表, 仅支持配置单字符按键的code值, 实际起作用的是Alt+单字符键, S/D/F/L键已被脚本征用
-        //   - enable 是否启用
-        //
-        hotkeyEngines: [
-            {
-                name: '百度百科',
-                url: 'https://baike.baidu.com/search/word?pic=1&sug=1&word=%s',
-                home: 'https://baike.baidu.com/',
-                hotkeys: ['KeyW'],
-                enable: true,
-            },
-            {
-                name: '百度翻译',
-                url: 'https://fanyi.baidu.com/#auto/zh/%s',
-                home: 'https://fanyi.baidu.com/',
-                hotkeys: ['KeyE'],
-                enable: true,
-            },
-            {
-                name: '百度',
-                url: Baidu.url,
-                home: Baidu.home,
-                hotkeys: ['KeyB'],
-                enable: true,
-            },
-            {
-                name: 'Google',
-                url: Google.url,
-                home: Google.home,
-                hotkeys: ['KeyG'],
-                enable: true,
-            },
-        ],
-        //
-        // 常用搜索引擎列表
-        // 属性:
-        //   - name 搜索引擎名称
-        //   - url 搜索引擎搜索url
-        //   - home 搜索引擎主页url
-        //   - icon 搜索引擎图标, base64编码
-        //   - enable 是否启用
-        //
-        frequentEngines: [
-            Baidu.callSiteInformation(),
-            Google.callSiteInformation(),
-            Bing.callSiteInformation(),
-            Baidufanyi.callSiteInformation(),
-
-            GitHub.callSiteInformation(false),
-
-            Zhihu.callSiteInformation(),
-            Googlenews.callSiteInformation(false),
-
-
-            Bilibili.callSiteInformation(),
-            Taobao.callSiteInformation(false),
-            Jingdong.callSiteInformation(),
-            Tianmao.callSiteInformation(false),
-            Baiduwangpan.callSiteInformation(false),
-            Maimai.callSiteInformation(false),
-        ],
-        //
-        // 分类搜索引擎列表, 二维数组, 默认认为该配置包含了所有已配置搜索引擎
-        // 一级分类属性:
-        //   - name 分类名称
-        //   - enable 该分类是否启用
-        //   - engines 该分类下的搜索引擎列表
-        // 二级搜索引擎属性:
-        //   - name 搜索引擎名称
-        //   - url 搜索引擎搜索url
-        //   - home 搜索引擎主页url
-        //   - icon 搜索引擎图标, base64编码
-        //   - enable 搜索引擎是否启用
-        //
-        classifiedEngines: [
-            {
-                name: '搜索引擎',
-                enable: true,
-                engines: [
-                    Baidu.callSiteInformation(),
-                    Google.callSiteInformation(),
-                    Bing.callSiteInformation(),
-                    {
-                        name: '搜狗',
-                        url: 'https://www.sogou.com/web?query=%s',
-                        icon: 'https://dlweb.sogoucdn.com/translate/favicon.ico?v=20180424',
-                        enable: true
-                    },
-                    {
-                        name: '360',
-                        url: 'https://www.so.com/s?ie=utf-8&q=%s',
-                        icon: 'https://s.ssl.qhimg.com/static/121a1737750aa53d.ico',
-                        enable: true
-                    }
-                ]
-            },
-            {
-                name: '知识',
-                enable: true,
-                engines: [
-                    Zhihu.callSiteInformation(),
-                    StackOverflow.callSiteInformation(),
-
-                    Maimai.callSiteInformation(),
-                    {
-                        name: 'Quora',
-                        url: 'https://www.quora.com/search?q=%s',
-                        icon: 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAA81JREFUWAntVluIjFEc/51vlkUiLMot7LBo5ZoSudSSOyu7s6554EFC8iBFNg/a8uTysOVSbmlG7bh7cC0PiiKXbMsMDyRWucsuu3P8zuR8e+acb8Ymb/bUdP6X3/9/fud3vu98A7SN/10B0VoBLoXR5YuHUjRjlgTGsrA353zWv6WdFAJXEEK8vA51re2pcH8kEJuIjvIdtkqJjcR3y9WczQhDvL2H7YufoTYXVudyEoiFMYIdo2xa7BcIPCDtI8LDY6rxnfG+KYm5VGAFsXkKx6YqvimSxEHl5xpZCaQXB26xaXfdgIvuF6Oxufw0l7ZGrBDjUuAxGCp5AtvKE6iyoBluIIGaYejxswkPuHhfA30rksBU7pSCBA+SXkA1zppZkl4WeYZTZsy0PdPR9o+f2G0tDhHCrlyLq1ru9hz1v6/7pGeJvRdGZn92HALxMAopy9qMJsAHMQo3rFigS5JxM8GN9PzagC1mzLQdAj+ACDW2j+Ze0LmbjbQtUrirbX+WWOrbluEQ4AnPtjDKTQbEsoUSTkJicKwIRU6cAZcAMMAGUo6PdiyrL/ApKCebMTAo7hIQ6G0DpUCDHcvm54eCsXwWnL6qh0tA4r3dnAqoK7dVo1GiSxCQD+fboLhLQOClA5To6sSyBbyWi8uEtMvDC9PXdvrq1I6a+QZc5zTBjPGdKNR+dCjmyBRWU5UhjHUm/jnzNV4BjpXfxne+Bb001p+5qdIKJFDpR3zDUSAv5N5aXGSMrIR3tgh9eAmfI8synulo/sK0ZyKFalmPO/FhGJhKYbzf/bfBRQ6JSqIChkNgSR0eEleTgZUoiJ3E5IV1eC09rOeOq6hAxmeXJIsbm3ApTcgo5tm/y+uEaiOUYbKPO84Uon8j8IhN/bMn8Cq/bjM0+sY0dKh/heNUYYmO2TNrpBfC3LKnuGzntO8ooBKLknjJwvlsoD6r6UEyJdEwqtRRqMD0m2jo1Q8raSrFnMHaZu5+fa7FVRFx2Ud0CKZwh6coax+NYtM7vBfS/wdof5ZNmEfMbp3XMxuXUrEz2k8T3wnJGu6lZeQkoGDnh6LgWzP2sND/w9FSnsMSOFyRwBqF4JtTwpvwCs1rFUmUmFV/JKDBvMsHsckq+rP4G8tdt1c5NnjD6QmNSYxlXFjMXVSK8fFfxX2rr+w+qrJJ1enRagK6QM/6Gz/vET6oGI9rB++HXTofOAuMoyr3zNxfEzCbKDtWhpC8j6NUYbmdS/sCB7j4Bjv3zwioxupBi57AUiGxjkcynLKHONfyvamOPMVRe/E2v00BpcAvNM8U1IpUANcAAAAASUVORK5CYII=',
-                        enable: false
-                    },
-
-                    Baiduzhidao.callSiteInformation(),
-                    {
-                        name: '维基百科',
-                        url: 'https://zh.wikipedia.org/wiki/%s',
-                        icon: 'https://s2.loli.net/2022/08/17/uycfXb6FIGRV5mN.png',
-                        enable: true
-                    },
-
-                    Baidubaike.callSiteInformation(),
-                    {
-                        name: '萌娘百科',
-                        url: 'https://zh.moegirl.org/%s',
-                        icon: 'data:image/x-icon;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAogB2AMkAFgAAAAAAAAAAALUAMgCrAIIAAAAAAAAAAAAAAAAAAAAAAKwASgCbAK0AnAC3AK0AYAD/AAEA/wAbAI0A/wCnADYAAAAAAAAAAACoAFUAlgDeAAAAAAAAAAAAAAAAAMMAPgCVAPsAqACJAKMAdgCWAPEAsQBXAKwAHACMAP8AyQAsAAAAAAAAAAAAsAA7AJQA+wD/AAMAAAAAAAAAAACXAH0AnQC2AAAAAAAAAAAApQB4AJsAvgDPADUAjQD/AKYAgQCkAIUAmwB/ANcAKwCOAP8A2AAdAAAAAAAAAAAAjwCBAKEAqgDkAAwA/AAQALQARACXAOoAoAA2AI4A/wCWAK4AlwCoAKAAlADwABQAkwD7AK8ANQAAAAAAAAAAAJEAgQCQAP0AjwD/AKMA1ADFADIAjQDuALYATQCQAPcA/wACAAAAAAAAAAAAAAAAAJgA5QCmAE4AAAAAAAAAAACjAHkAmwDUALgAJgD/AAYAtAA8AJEA7wCfAFIAkQD/AJsA0QCRANoAlQDYAPMAIACUAMoApQBlAAAAAAAAAAAAowBeAJkA5gDeABUA/wABAKwAjgCZAMIApQBiAJMA7QCkAGAAowBSALUAMwD/AAEAngDFAJEAZgAAAAAAAAAAAMkAJQCaANcAlQDzAJwAywCWAPQAsAA3AKcAbwCOAPsAoACjALIAQgD/ABQAyQAxAJUA6wChAF8AAAAAAAAAAAAAAAAA/wACAK0AQQCgAFoAxgAcAAAAAACwAEMAnwCOAJ4AsQCRAPoAjQD/AI8A/wCiAL0A4wAOAAAAAAAAAAAAAAAAAAAAAAD/AC4A/wC9ALIAswD/AG8AAAAAAAAAAAD/AAEAogDmAM4AVADVABEAAAAAAAAAAAAAAAAAAAAAAKwAhQCfALsAyQDBAOwA/wDqAP8A8gD9AMkApQCPAGkAlwBqAJcA8QChAKsAqwBkAJAATgCvADsAAAAAAAAAAAC0AEsAmQB8AMoAlQDzAPYA/wD/APkA6gCgALcAngDCAJQAwgCSANwAkAD9AJcA0QCcAN0AqACfAAAAAAAAAAAAAAAAAAAAAAAAAAAAoQCVAK0AnAD/AB8AAAAAAAAAAAAAAAAAwgAqAJgA+AD/AAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOEADgD4AAoAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AAoA/wABAAAAAAAAAAAAAAAA//+sQf8zrEHAM6xBgDGsQZgBrEGAAaxBgDmsQYABrEGAAaxBgAGsQcIBrEHhh6xBgAGsQYABrEHxx6xB8+esQQ==',
-                        enable: false
-                    },
-
-
-                    {
-                        name: '豆丁文档',
-                        url: 'https://www.docin.com/search.do?searchcat=2&searchType_banner=p&nkey=%s',
-                        icon: 'https://st.douding.cn/images_cn/topic/favicon.ico?rand=24220809',
-                        enable: true
-                    },
-                    {
-                        name: '豆瓣读书',
-                        url: 'https://search.douban.com/book/subject_search?search_text=%s',
-                        home: 'https://book.douban.com/',
-                        icon: 'https://www.douban.com/favicon.ico',
-                        enable: true
-                    },
-                    {
-                        name: '微信(搜狗)',
-                        url: 'https://weixin.sogou.com/weixin?ie=utf8&type=2&query=%s',
-                        icon: 'https://dlweb.sogoucdn.com/translate/favicon.ico?v=20180424',
-                        enable: true
-                    },
-                    {
-                        name: '果壳',
-                        url: 'https://www.guokr.com/search/all/?wd=%s',
-                        icon: 'https://www.guokr.com/favicon.ico',
-                        enable: false
-                    }
-                ]
-            },
-            {
-                name: '开发',
-                enable: true,
-                engines: [
-
-                    StackOverflow.callSiteInformation(),
-                    {
-                        name: 'Apache Issues',
-                        url: 'https://issues.apache.org/jira/secure/QuickSearch.jspa?searchString=%s',
-                        home: 'https://issues.apache.org/jira/',
-                        icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAABE0AAARNAES6f7VAAAAB3RJTUUH4QIJEAkJojze8AAAA1xJREFUWMPdl0tonVUQx38z5/vubaPmJqZV+8JrJWmjQqXRGAUXFiwKgqsWV4UqqNSVYEVLuxJ1IdKVj67EjYauBLEU8YVUY9OilSZi2pReCLWJrXmQ1+V+35lxoVvtzW2uAQfO6syZ/+/MmTOHIyyzzb9/Z1nw94DHLBPyqrzetn/04D/563KKXz3U2WpV2e8uO4FFSUCEF/5tTbJc4r+9tDXJFvwZgj1dbGdKEl/lEdwZ+08A4pw8KgmH3LVm0TMN0u4RHD5oOkBlz91r4jyvaeqtnvk5z3yjJK6SAPj3TQeozegBTenR3M5qpOBRbpLUkcRPaJDzTQUY3nHvU7bAi57YFS/qpOU8rIkhqSCJH9HAdNMABjr6Omrj2cHCzdEl1YuYdUqOeipoznER+ax8dMiaBpC02rP5vHYDV9M2m/dM10uKg17ymhye+K4wfc0YjYoPlnvLDntQ0WwxjFqmm91BxAWlTYS4g5N+rTgNNyJHnnOnCxjDGbdMNnoEywSvycdWkx/rymIj4ifKDz0Y8V2CqbifFmQbEHAAH3Gnv/fiqammAHxRfiSJxCcdu0PRMcVawTb/NSsGcgp8uO46Wvr+w+05+oBgqtgvinUrxt/jMnCsrzI40TSAjHCXQHfAZg3LFbtFMAKOYlGx8SXdpKU4f1p+ohDxHvBbHTkdYJ2jRcVwzAUd2E7lm6YBZKRrBe8THCOOGGGnYKIYAZsQeLdUqXgzATYo3ivYoCJrDSspiuLRsaOPV459u9QjrasPvNH1smy4/7JMa+umRSm2R8KVnGRLRlowwpwj/RnFNxvqpvU1HQ/7Zg7fNxNKPbmlc2mcKimsD+Rf1Sh8PRnah56/cGS8aQCCG0hLLrp3TldPgLcL/nNVimeiJPc40t/we1KP02xooejZiLqfjxJKk7oq4LZNsFLA97167q3RRgHqqoHEI5mk22uadNQkXMpE1kXV1EQ/iejAdb2o9ThVQ+FGNd+i8JOIVAS7YG4fjRbafug/+4o3HcDQhTzoh2r2axD98vNNndUzx3dfl/CSADJJouBl1/DH20MHFhlm2ayuGpBQTHNNbquKnlvun1RdGfg9zq5WVFvDDdMrAjCaTbQoMn1y6J24IgCzvrjGYYGVsq1de3fzf7U/AU7ddxqLiUogAAAAAElFTkSuQmCC',
-                        enable: true
-                    },
-                    GitHub.callSiteInformation(),
-                    {
-                        name: 'Maven',
-                        url: 'https://mvnrepository.com/search?q=%s',
-                        icon: 'data:image/x-icon;base64,AAABAAEAEBAAAAAAAABoBQAAFgAAACgAAAAQAAAAIAAAAAEACAAAAAAAAAEAAAAAAAAAAAAAAAEAAAAAAAAAAAAA49nPALqwpgDWdBgA13UZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAAABAQEBAQEBAQEBAQEBAQAAAEBAQEBAQEBAQEBAQEBAAAAAAAAAAAAAAAAAAAAAAAABAAAAAQAAAQAAAQAAAQAAAQABAAEAAIEAgAEAgQEAAAEBAQEBAAEBAQABAQEBAAABAQEBAQABAIEAAQEBAQAAAQEAAQEAAQABAAEBAAEAAAEAAAABAAEAAQABAAABAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAAAEBAQEBAQEBAQEBAQEBAAAAwMDAwMDAwMDAwQEBAQAAAAAAAAAAAAAAAAAAAAAAP//AACAAQAAgAEAAIABAAD//wAAu20AAKohAACCIQAAgiEAAJKlAAC6rQAA//8AAIABAACAAQAAgAEAAP//AAA=',
-                        enable: true
-                    }
-                ]
-            },
-            {
-                name: '翻译',
-                enable: true,
-                engines: [
-
-                    Baidufanyi.callSiteInformation(),
-                    Googlefanyi.callSiteInformation(),
-
-                    {
-                        name: '有道词典',
-                        url: 'https://youdao.com/w/%s',
-                        icon: 'https://shared-https.ydstatic.com/images/favicon.ico',
-                        enable: true
-                    },
-                    {
-                        name: '必应翻译',
-                        url: 'https://cn.bing.com/dict/search?q=%s',
-                        home: 'https://www.bing.com/dict',
-                        icon: Bing.icon,
-                        enable: true
-                    },
-                    {
-                        name: '海词词典',
-                        url: 'http://dict.cn/%s',
-                        icon: 'http://i1.haidii.com/favicon.ico',
-                        enable: true
-                    },
-                    {
-                        name: 'CNKI翻译',
-                        url: 'http://dict.cnki.net/dict_result.aspx?scw=%s',
-                        icon: 'https://epub.cnki.net/favicon.ico',
-                        enable: false
-                    },
-                    {
-                        name: '汉典',
-                        url: 'https://www.zdic.net/hans/%s',
-                        icon: 'https://www.zdic.net/favicon.ico',
-                        enable: false
-                    },
-                    {
-                        name: 'deepL',
-                        url: 'https://www.deepl.com/translator#en/zh/%s',
-                        icon: 'https://s2.loli.net/2022/08/17/m3H5BdLRAexbVsz.png',
-                        enable: true
-                    },
-                ]
-            },
-            {
-                name: '地图',
-                enable: true,
-                engines: [
-
-                    Baidumap.callSiteInformation(),
-                    {
-                        name: '高德地图',
-                        url: 'https://www.amap.com/search?query=%s',
-                        icon: 'https://a.amap.com/pc/static/favicon.ico',
-                        enable: true
-                    },
-                    Googlemap.callSiteInformation(),
-                    Googleearth.callSiteInformation()
-
-                ]
-            },
-            {
-                name: '图片',
-                enable: true,
-                engines: [
-
-                    Baidutupian.callSiteInformation(),
-                    {
-                        name: '搜狗图片',
-                        url: 'https://pic.sogou.com/pics?query=%s',
-                        icon: 'https://dlweb.sogoucdn.com/translate/favicon.ico?v=20180424',
-                        enable: true
-                    },
-                    Googlepic.callSiteInformation(),
-
-                    {
-                        name: '必应图片',
-                        url: 'https://www.bing.com/images/search?q=%s',
-                        home: 'https://www.bing.com/images/trending',
-                        icon: Bing.icon,
-                        enable: true
-                    },
-                    {
-                        name: 'pixiv',
-                        url: 'https://www.pixiv.net/tags/%s',
-                        icon: 'https://s2.loli.net/2022/08/17/OxGZLn26TlWyQt9.png',
-                        enable: true
-                    },
-                    {
-                        name: 'flickr',
-                        url: 'https://www.flickr.com/search/?q=%s',
-                        icon: 'https://combo.staticflickr.com/pw/favicon.ico',
-                        enable: true
-                    },
-                    {
-                        name: '花瓣',
-                        url: 'https://huaban.com/search/?q=%s',
-                        icon: 'https://huaban.com/favicon.ico',
-                        enable: true
-                    }
-                ]
-            },
-            {
-                name: '音乐',
-                enable: true,
-                engines: [
-                    {
-                        name: '网易云音乐',
-                        url: 'https://music.163.com/#/search/m/?s=%s',
-                        icon: 'https://s1.music.126.net/style/favicon.ico?v20180823',
-                        enable: true
-                    },
-                    {
-                        name: 'QQ音乐',
-                        url: 'https://y.qq.com/portal/search.html#page=1&searchid=1&remoteplace=txt.yqq.top&t=song&w=%s',
-                        icon: 'https://y.qq.com/favicon.ico?max_age=2592000',
-                        enable: true
-                    },
-                    {
-                        name: '酷我音乐',
-                        url: 'http://www.kuwo.cn/search/list?type=all&key=%s',
-                        icon: 'http://www.kuwo.cn/favicon.ico',
-                        enable: true
-                    },
-
-                    {
-                        name: '咪咕音乐',
-                        url: 'https://music.migu.cn/v3',
-                        icon: 'https://music.migu.cn/favicon.ico',
-                        enable: true
-                    },
-                    {
-                        name: '酷狗5sing',
-                        url: 'http://search.5sing.kugou.com/?keyword=%s',
-                        home: 'http://5sing.kugou.com/index.html',
-                        icon: 'http://5sing.kugou.com/favicon.ico',
-                        enable: true
-                    }
-                ]
-            },
-
-            {
-                name: '购物',
-                enable: true,
-                engines: [
-
-                    Taobao.callSiteInformation(),
-                    Jingdong.callSiteInformation(),
-                    Tianmao.callSiteInformation(),
-
-                    {
-                        name: '当当',
-                        url: 'http://search.dangdang.com/?key=%s&act=input',
-                        home: 'http://www.dangdang.com/',
-                        icon: 'http://www.dangdang.com/favicon.ico',
-                        enable: false
-                    },
-                    {
-                        name: '苏宁',
-                        url: 'https://search.suning.com/%s/',
-                        home: 'https://www.suning.com/',
-                        icon: 'https://www.suning.com/favicon.ico',
-                        enable: false
-                    },
-                    {
-                        name: '亚马逊',
-                        url: 'https://www.amazon.cn/s?k=%s',
-                        icon: 'https://www.amazon.cn/favicon.ico',
-                        enable: false
-                    }
-                ]
-            },
-
-            /*{
-                name: '自定义',
-                enable: true,
-                engines: [
-                    Baiduwangpan.callSiteInformation(),
-    
-                ]
-            },*/
-            {
-                name: '学术',
-                enable: true,
-                engines: [
-                    Googlexueshu.callSiteInformation(),
-
-
-                    Baiduxueshu.callSiteInformation(),
-                    {
-                        name: '知网',
-                        url: 'http://epub.cnki.net/kns/brief/default_result.aspx?txt_1_value1=%s&dbPrefix=SCDB&db_opt=CJFQ%2CCJFN%2CCDFD%2CCMFD%2CCPFD%2CIPFD%2CCCND%2CCCJD%2CHBRD&singleDB=SCDB&action=scdbsearch',
-                        icon: 'https://epub.cnki.net/favicon.ico',
-                        enable: true
-                    },
-                    {
-                        name: '万方',
-                        url: 'http://www.wanfangdata.com.cn/search/searchList.do?searchType=all&searchWord=%s',
-                        icon: 'https://cdn.s.wanfangdata.com.cn/favicon.ico',
-                        enable: true
-                    },
-                    {
-                        name: 'WOS',
-                        url: 'http://apps.webofknowledge.com/UA_GeneralSearch.do?fieldCount=3&action=search&product=UA&search_mode=GeneralSearch&max_field_count=25&max_field_notice=Notice%3A+You+cannot+add+another+field.&input_invalid_notice=Search+Error%3A+Please+enter+a+search+term.&input_invalid_notice_limits=+%3Cbr%2F%3ENote%3A+Fields+displayed+in+scrolling+boxes+must+be+combined+with+at+least+one+other+search+field.&sa_img_alt=Select+terms+from+the+index&value(input1)=%s&value%28select1%29=TI&value%28hidInput1%29=initVoid&value%28hidShowIcon1%29=0&value%28bool_1_2%29=AND&value%28input2%29=&value%28select2%29=AU&value%28hidInput2%29=initAuthor&value%28hidShowIcon2%29=1&value%28bool_2_3%29=AND&value%28input3%29=&value%28select3%29=SO&value%28hidInput3%29=initSource&value%28hidShowIcon3%29=1&limitStatus=collapsed&expand_alt=Expand+these+settings&expand_title=Expand+these+settings&collapse_alt=Collapse+these+settings&collapse_title=Collapse+these+settings&SinceLastVisit_UTC=&SinceLastVisit_DATE=×panStatus=display%3A+block&timeSpanCollapsedListStatus=display%3A+none&period=Range+Selection&range=ALL&ssStatus=display%3Anone&ss_lemmatization=On&ss_query_language=&rsStatus=display%3Anone&rs_rec_per_page=10&rs_sort_by=PY.D%3BLD.D%3BVL.D%3BSO.A%3BPG.A%3BAU.A&rs_refinePanel=visibility%3Ashow',
-                        icon: 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAABEpJREFUWAmdVl1sFFUUPmfY2S3QVoMI7XYhUSsmGqttjRZqtCIBEoT4YGrQPuiDoSXCA4nRREPqi/ENSYWiUVQSSRNSS9Q3I0GFtmoN8aeJQbQrrNAaq7S2pWS7c/3OtjPO7N6ZzuxJzt57v3PuOd/92TOXqURpr1LvsaIUGdQbL6O+gyM8VkooLmVSR5XaphR9as9FEEsxnTEUHbsnRcd2fcdZ27ZYG5nAnlpVmZ2iYZLV64TpIuDXzXI62nWBr+tc3JjhHoTpz03RK77JJYCitdDDIHmho1q1K4W9CZBAY+G8F29VN0xM0yXgFYU2vzEzfZEgeuaNUU7rfCLtwOQMtSNI6OSSEHfl4VlFP+yuVs/pCBTuwHY4PQAth4I4zUKnoBnor+2rVSfaZmhJgmQny0x66kCGr9kBCgkMw3CnbSxoT2H86O6UqqU52oyVbVFEjwCLtCNI2I+lPdZ9kf+R+G4ClRgL6Hcse2B7E+rIW43KPHeZdrBF+0GmzjEs0sG9GI4toa1df3DGTWAj5n0eMPc22H7T2eWmP5+kx615IvfqfAoxkDjXPcoN7tXK2fvJnzBok8sEZlaHrnDf4VFqwHAnVnVV8CCBT4/Y3QSCmH8bFMy2CZEjY9yTYKrH4X5j45p2bJUxf5xuAis1jjYk//3QIv/5+hp6EBMO+Ex6rfMyz4jNTeAmH2eB/wqwaU3yPcBu7MNW7y1wGNj4EB2yMTeBFTaoacc1WCioe4y7DKYXxBlkJmNET7ee4JxushQc/Ju02qabEAVDJXwZ34aiOCDkiOn0ijsTxVA05OPe+AQ+SzFa753nPoJ8ZfKanVHQBXWc/DqpwXibxeog6kXXmqGE1BNH3AT+dtDiTnUxFA5JDprPWpb1Pg5WcpVbWet4i2pxdj4sgWS4dP97SXVM9sf24610FOgS2wL8/l8Gz0pZz0tYApF2INVfuSI1YH6CDK8u5PE0IPFS3ferlwvoJvCzx8s7uMs79B8lB+JPWjwzjL/TNn8vWjU+PZ6vD24CQeX2DgRbGxCQagbNppqB2GekrB6cd1WQr9gU8xPSOpcB/aDaLb6boe9Ix5bGoUbzSvanrUy5vcpSm2x8sRbfjB+NhLmdKOt5D8g8+erd7BPgBPDWdUMVK6/NXW+2lNqCdbTiYRJUwjWh+Kv40uU70vVX819MVEePdGB0N7RiQefQji7oeWxxBxK2YFyS4A3Qa1al2tK3pOWplxf3EQjQPQ/7/tbC0uJr9TMwTRqK92XWZ98lSnu83JfQY9ANWC07gkOb1tn8MGzxqUQiVpfZIMmLJRKBzIZJVEuWwrKo4KJdMgzehVVvGmmY/d1vQiQCEsRQSzvRyGXVC/OIJL6xcl1tpin7tryS9I7zaOElDPJ1bGu+ju/M5azjDkCUwwX7Ervzwe1NzR+e5tNyeUNJSQQkMup8H5Li+ccfLTPLTp6/79/IryaJ8x9KSDhA8t6n2QAAAABJRU5ErkJggg==',
-                        enable: true
-                    },
-
-                    {
-                        name: 'Springer',
-                        url: 'http://rd.springer.com/search?query=%s',
-                        icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAlVJREFUeNrsVz1SwkAUXhw7G7xBPEBGPIHhBqRMBZwAUlsAhXX0BIGKUjxB4ATgcADjCUxjrS+7X5g1f+wuYcbCN/OMLLt53/vet2+XFjMx27Po74A8IZ+z/TJhhnapGTgN2ibfkU8w2ie/MwXQ0gTwnRtZkzvkPnlM3iF/0mHkQhPwDoGyAAs8A/IXsBISUOdcALLAzxIgxnXA2Ayfe+QRgdiSvzQHwPY6oDghiqf07NIzA/DBx/bLVAs35CvM7WHdiQDES0IIUGS/X67xbRdaYBiPyV36bwjGojoQLcXgW3yKueD2y5UicIcDEKVZ0LonEwb6eA5R57Zy2QRLM5Sjr18C22tDVGkGFspwX5mtaFB5EFMwZ+F9WgyECJwpPBXesGJuhO5YZhlzPfVOaHtjLJgfrXlJZjlbIZkJzU3k913UCC9A1n7hHCiq2sn1hXwZEoCwjjMgsgkPwiu21YjTaXuuNDaSWnOVvUl6qtVAANWuKpS7Qz0jyR0+v/4MyMBZ1QAEtQNMTgqU2V540IVoQK7Unn3FzTmqYyA7aFIgr+QbCvqJ4D2Am/OdIPZ4H2z4vAOqmVMNQFDYlbbgRGo8AcD5BTZKOlyNPddrQBww7q+OZ3uB1A8YP+lkNvRsfbwRCXpdqa5jaXGEEpkEZ2VbUedGFPJbkaBfd+0Aa99N7wPOYYeclnnX9EY0kk5FE7vFZSY2BeAg+9gQQKesVatcSKL83m3AZjimlX4XLHhDatbW7N/+ih0V4efDVXY8N2mL68evuaoIO2fYBRvTn2aN248AAwDlS8jXdEymWAAAAABJRU5ErkJggg==',
-                        enable: true
-                    },
-                    {
-                        name: 'Letpub',
-                        url: 'https://www.letpub.com.cn/index.php?page=journalapp&view=search&searchsort=relevance&searchname=%s',
-                        home: 'https://www.letpub.com.cn/',
-                        icon: 'https://www.letpub.com.cn/images/favicon.ico',
-                        enable: true
-                    },
-                    {
-                        name: '科研通',
-                        url: 'https://www.ablesci.com/journal/index?keywords=%s',
-                        home: 'https://www.ablesci.com/',
-                        icon: 'https://www.ablesci.com/favicon.ico/',
-                        enable: true
-                    }
-                ]
-            },
-            {
-                name: '社交',
-                enable: true,
-                engines: [
-                    Weibo.callSiteInformation(),
-
-                    Baidutieba.callSiteInformation(),
-
-                    Zhihu.callSiteInformation(),
-
-                    {
-                        name: '豆瓣',
-                        url: 'https://www.douban.com/search?q=%s',
-                        home: 'https://www.douban.com/',
-                        icon: 'https://www.douban.com/favicon.ico',
-                        enable: true
-                    },
-                    {
-                        name: 'Twitter',
-                        url: 'https://twitter.com/search?q=%s',
-                        icon: 'https://s2.loli.net/2022/08/17/rsbLXJA1lG5hmfe.png',
-                        enable: false
-                    },
-                    {
-                        name: 'Facebook',
-                        url: 'https://www.facebook.com/search/results.php?q=%s',
-                        icon: 'https://s2.loli.net/2022/08/17/69R4ObX3kUctNvM.png',
-                        enable: false
-                    }
-                ]
-            },
-            {
-                name: '新闻',
-                enable: false,
-                engines: [
-                    Googlenews.callSiteInformation(),
-                    Baiduxinwen.callSiteInformation(),
-                    {
-                        name: '今日头条',
-                        url: 'https://www.toutiao.com/search/?keyword=%s',
-                        icon: 'https://lf3-search.searchpstatp.com/obj/card-system/favicon_5995b44.ico',
-                        enable: true
-                    },
-                    Weibo.callSiteInformation(),
-                    Zhihu.callSiteInformation()
-
-                ]
-            }
-        ],
-    };
-
+	const defaultConf = {
+		//
+		// 基本配置
+		//
+		showToolbar: true,              // 显示划词工具条
+		showFrequentEngines: true,      // 显示常用搜索引擎
+		showClassifiedEngines: true,    // 显示分类搜索引擎
+		showPlaceholder: true,          // 显示使用方式提示信息(如搜索框placeholder)
+		enableOnInput: true,            // 是否在input/textarea上启用划词和快捷键
+		autoCopyToClipboard: false,     // 划词时自动复制到剪贴板(内容为文本格式)
+		//
+		// 搜索建议配置
+		//
+		// 可选值baidu|google, 可根据需要调整顺序
+		engineSuggestions: [
+			{
+				name: 'google',
+				showCount: 5,
+				enable: false
+			},
+			{
+				name: 'baidu',
+				showCount: 5,
+				enable: false
+			},
+		],
+		//
+		// 搜索框默认搜索引擎
+		// 属性:
+		//   - name 搜索引擎名称
+		//   - url 搜索引擎搜索url
+		//   - home 搜索引擎主页url
+		//
+		defaultEngine: {
+			name: Bing.name,
+			url: Bing.url,
+			home: Bing.home,
+		},
+		//
+		// 绑定快捷键的搜索引擎列表
+		// 属性:
+		//   - name 搜索引擎名称
+		//   - url 搜索引擎搜索url
+		//   - home 搜索引擎主页url
+		//   - hotkeys 快捷键列表, 仅支持配置单字符按键的code值, 实际起作用的是Alt+单字符键, S/D/F/L键已被脚本征用
+		//   - enable 是否启用
+		//
+		hotkeyEngines: [
+			{
+				name: '百度百科',
+				url: Baidubaike.url,
+				home: Baidubaike.home,
+				hotkeys: ['KeyW'],
+				enable: true,
+			},
+			{
+				name: '百度翻译',
+				url: Baidufanyi.url,
+				home: Baidufanyi.home,
+				hotkeys: ['KeyE'],
+				enable: true,
+			},
+			{
+				name: '百度',
+				url: Baidu.url,
+				home: Baidu.home,
+				hotkeys: ['KeyB'],
+				enable: true,
+			},
+			{
+				name: 'Google',
+				url: Google.url,
+				home: Google.home,
+				hotkeys: ['KeyG'],
+				enable: true,
+			},
+		],
+		//
+		// 常用搜索引擎列表
+		// 属性:
+		//   - name 搜索引擎名称
+		//   - url 搜索引擎搜索url
+		//   - home 搜索引擎主页url
+		//   - icon 搜索引擎图标, base64编码
+		//   - enable 是否启用
+		//
+		frequentEngines: [
+			Baidu.callSiteInformation(),
+			Google.callSiteInformation(),
+			Bing.callSiteInformation(),
+			Baidufanyi.callSiteInformation(),
+			GitHub.callSiteInformation(false),
+			Zhihu.callSiteInformation(),
+			Googlenews.callSiteInformation(false),
+			Bilibili.callSiteInformation(),
+			Taobao.callSiteInformation(false),
+			Jingdong.callSiteInformation(),
+			Tianmao.callSiteInformation(false),
+			Baiduwangpan.callSiteInformation(false),
+			Maimai.callSiteInformation(false),
+		],
+		//
+		// 分类搜索引擎列表, 二维数组, 默认认为该配置包含了所有已配置搜索引擎
+		// 一级分类属性:
+		//   - name 分类名称
+		//   - enable 该分类是否启用
+		//   - engines 该分类下的搜索引擎列表
+		// 二级搜索引擎属性:
+		//   - name 搜索引擎名称
+		//   - url 搜索引擎搜索url
+		//   - home 搜索引擎主页url
+		//   - icon 搜索引擎图标, base64编码
+		//   - enable 搜索引擎是否启用
+		//
+		classifiedEngines: [
+			{
+				name: '搜索引擎',
+				enable: true,
+				engines: [
+					Baidu.callSiteInformation(),
+					Google.callSiteInformation(),
+					Bing.callSiteInformation(),
+					Sougou.callSiteInformation(),
+					So360.callSiteInformation()
+				]
+			},
+			{
+				name: '知识',
+				enable: true,
+				engines: [
+					Zhihu.callSiteInformation(),
+					StackOverflow.callSiteInformation(),
+					Maimai.callSiteInformation(),
+					Quora.callSiteInformation(false),
+					Baiduzhidao.callSiteInformation(),
+					Wikipedia.callSiteInformation(),
+					Baidubaike.callSiteInformation(),
+					Moegirl.callSiteInformation(false),
+					Docin.callSiteInformation(),
+					DoubanBook.callSiteInformation(),
+					WeixinSogou.callSiteInformation(),
+					Guokr.callSiteInformation(false)
+				]
+			},
+			{
+				name: '开发',
+				enable: true,
+				engines: [
+					StackOverflow.callSiteInformation(),
+					ApacheIssues.callSiteInformation(),
+					GitHub.callSiteInformation(),
+					Maven.callSiteInformation()
+				]
+			},
+			{
+				name: '翻译',
+				enable: true,
+				engines: [
+					Baidufanyi.callSiteInformation(),
+					Googlefanyi.callSiteInformation(),
+					Youdao.callSiteInformation(),
+					Bingfanyi.callSiteInformation(),
+					Haici.callSiteInformation(),
+					CNKIfanyi.callSiteInformation(false),
+					Zdic.callSiteInformation(false),
+					Deepl.callSiteInformation()
+				]
+			},
+			{
+				name: '地图',
+				enable: true,
+				engines: [
+					Baidumap.callSiteInformation(),
+					GaodeMap.callSiteInformation(),
+					Googlemap.callSiteInformation(),
+					Googleearth.callSiteInformation()
+				]
+			},
+			{
+				name: '图片',
+				enable: true,
+				engines: [
+					Baidutupian.callSiteInformation(),
+					SogouPic.callSiteInformation(),
+					Googlepic.callSiteInformation(),
+					BingPic.callSiteInformation(),
+					Pixiv.callSiteInformation(),
+					Flickr.callSiteInformation(),
+					Huaban.callSiteInformation()
+				]
+			},
+			{
+				name: '音乐',
+				enable: true,
+				engines: [
+					NeteaseMusic.callSiteInformation(),
+					QQMusic.callSiteInformation(),
+					KuwoMusic.callSiteInformation(),
+					MiguMusic.callSiteInformation(),
+					Kugou5sing.callSiteInformation()
+				]
+			},
+			{
+				name: '购物',
+				enable: true,
+				engines: [
+					Taobao.callSiteInformation(),
+					Jingdong.callSiteInformation(),
+					Tianmao.callSiteInformation(),
+					Dangdang.callSiteInformation(false),
+					Suning.callSiteInformation(false),
+					Amazon.callSiteInformation(false)
+				]
+			},
+			{
+				name: '学术',
+				enable: true,
+				engines: [
+					Googlexueshu.callSiteInformation(),
+					Baiduxueshu.callSiteInformation(),
+					CNKI.callSiteInformation(),
+					Wanfang.callSiteInformation(),
+					WOS.callSiteInformation(),
+					Springer.callSiteInformation(),
+					Letpub.callSiteInformation(),
+					Ablesci.callSiteInformation()
+				]
+			},
+			{
+				name: '社交',
+				enable: true,
+				engines: [
+					Weibo.callSiteInformation(),
+					Baidutieba.callSiteInformation(),
+					Zhihu.callSiteInformation(),
+					Douban.callSiteInformation(),
+					Twitter.callSiteInformation(false),
+					Facebook.callSiteInformation(false)
+				]
+			},
+			{
+				name: '新闻',
+				enable: false,
+				engines: [
+					Googlenews.callSiteInformation(),
+					Baiduxinwen.callSiteInformation(),
+					Toutiao.callSiteInformation(),
+					Weibo.callSiteInformation(),
+					Zhihu.callSiteInformation()
+				]
+			}
+		],
+	};
     ///////////////////////////////////////////////////////////////////
     // css样式
     ///////////////////////////////////////////////////////////////////
+	const sheet = `
+	/* —————— 主窗口整体美化（横向分组） —————— */
 
-    const sheet = `
-        /*
-           注意: 为了避免网页style对该工具的影响, 所有样式均进行初始化并加入!important,
-           js中设置style时也要注意将其设置为important, 否则不能生效.
-        */
-        /* 划词工具条 */
-        .qs-toolbar {
-            /* 初始化所有style, 避免被网页本身的style影响 */
-            all: initial !important;
-            position: absolute !important;
-            display: block !important;
-            height: 26px !important;
-            padding: 2px !important;
-            white-space: nowrap !important;
-            border: 1px solid #F5F5F5 !important;
-            box-shadow: 0px 0px 2px #BBB !important;
-            background-color: #FFF !important;
-            z-index: 10000 !important;
-        }
-        .qs-toolbar-icon {
-            all: initial !important;
-            display: inline-block !important;
-            margin: 0px !important;
-            padding: 2px !important;
-            width: 20px !important;
-            height: 20px !important;
-            border: 1px solid #FFF !important;
-            cursor: pointer !important;
-        }
-        .qs-toolbar-icon:hover {
-            border: 1px solid #CCC !important;
-        }
+	.qs-main-background-layer {
+		all: initial !important;
+		position: fixed !important;
+		inset: 0 !important;
+		background: rgba(0,0,0,0.35) !important;
+		backdrop-filter: blur(6px) !important;
+		z-index: 20000 !important;
+	}
 
-        /* 快搜主窗口背景层 */
-        .qs-main-background-layer {
-            all: initial !important;
-            position: fixed !important;
-            display: block !important;
-            top: 0px !important;
-            left: 0px !important;
-            width: 100% !important;
-            height: 100% !important;
-            border: 0px !important;
-            background-color: rgba(255,255,255,0.3) !important;
-            /* 使背景层背后的所有元素虚化 */
-            backdrop-filter: blur(5px) !important;
-            z-index: 20000 !important;
-        }
+	.qs-mainbox {
+		all: initial !important;
+		position: fixed !important;
+		top: 50% !important;
+		left: 50% !important;
+		transform: translate(-50%, -50%) !important;
+		width: 90vw !important;
+		max-width: 1100px !important;
+		max-height: 80vh !important;
+		background: #ffffff !important;
+		border-radius: 16px !important;
+		box-shadow: 0 12px 32px rgba(0,0,0,0.2) !important;
+		padding: 30px 40px 25px !important;
+		overflow-y: auto !important;
+		z-index: 30000 !important;
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif !important;
+	}
 
-        /* 快搜主窗口 */
-        .qs-mainbox {
-            all: initial !important;
-            position: fixed !important;
-            display: block !important;
-            text-align: center !important;
-            overflow: scroll !important;
-            left: 50% !important;
-            top: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            /* 宽度优先展示 */
-            width: max-content !important;
-            min-width: 500px !important;
-            max-width: 1400px !important;
-            min-height: 75px !important;
-            max-height: 650px !important;
-            padding: 10px !important;
-            border: 1px solid #F5F5F5 !important;
-            box-shadow: 0px 0px 6px #BBB !important;
-            border-radius: 10px !important;
-            background-color: #FFF !important;
-            opacity: 1 !important;
-            z-index: 30000 !important;
-        }
-        /* 快搜主窗口搜索框 */
-        .qs-main-search-box {
-            all: initial !important;
-            display: block !important;
-            text-align: center !important;
-            width: 100% !important;
-            margin: 5px 0px !important;
-            border: 0px !important;
-        }
-        .qs-main-search-input {
-            all: initial !important;
-            text-align: left !important;
-            width: 80% !important;
-            min-width: 400px !important;
-            max-width: 600px !important;
-            height: 40px !important;
-            padding: 0px 13px !important;
-            font: 17px/20px arial !important;
-            border: 2px solid #C4C7CE !important;
-            border-radius: 10px !important;
-            outline: none !important;
-        }
-        .qs-main-search-input:hover, .qs-main-search-input:focus {
-            border-color: #4E71F2 !important;
-        }
-        .qs-main-search-input::selection {
-            color: #FFF !important;
-            background-color: #425d78 !important;
-        }
-        .qs-main-search-input::placeholder {
-            color: #DDD !important;
-            opacity: 1 !important;
-        }
-        /* 快搜主窗口常用搜索引擎列表 */
-        .qs-main-frequent-box {
-            all: initial !important;
-            display: block !important;
-            text-align: center !important;
-            width: 100% !important;
-            height: 38px !important;
-            margin: 15px 0px 5px 0px !important;
-            white-space: nowrap !important;
-            border: 0px !important;
-        }
-        .qs-main-frequent-icon {
-            all: initial !important;
-            display: inline-block !important;
-            width: 28px !important;
-            height: 28px !important;
-            margin: 0px 6px !important;
-            padding: 3px !important;
-            border: 2px solid #FFF !important;
-            cursor: pointer !important;
-        }
-        .qs-main-frequent-icon:hover {
-            border: 2px solid #CCC !important;
-        }
-        /* 快搜主窗口分类搜索引擎列表 */
-        .qs-main-classified-box {
-            all: initial !important;
-            display: block !important;
-            text-align: center !important;
-            width: 100% !important;
-            margin-top: 15px !important;
-            padding-top: 5px !important;
-            border: 0px !important;
-            border-top: 1px solid #DDD !important;
-        }
-        .qs-main-classified-family-box {
-            all: initial !important;
-            display: inline-block !important;
-            text-align: left !important;
-            vertical-align: top !important;
-            min-width: 50px !important;
-            max-width: 150px !important;
-            height: 100% !important;
-            margin: 5px 3px !important;
-            border: 0px !important;
-        }
-        .qs-main-classified-family-title {
-            all: initial !important;
-            display: block !important;
-            text-align: left !important;
-            margin: 5px 4px !important;
-            font-size: 18px !important;
-            font-weight: 300 !important;
-            color: #777 !important;
-            border: 0px !important;
-        }
-        .qs-main-classified-family-engine {
-            all: initial !important;
-            display: block !important;
-            text-align: left !important;
-            vertical-align: middle !important;
-            height: 26px !important;
-            border: 2px solid #FFF !important;
-            cursor: pointer !important;
-        }
-        .qs-main-classified-family-engine:hover {
-            border: 2px solid #CCC !important;
-        }
-        .qs-main-classified-family-engine-icon {
-            all: initial !important;
-            display: inline-block !important;
-            vertical-align: middle !important;
-            width: 16px !important;
-            height: 16px !important;
-            margin: 0px 3px 0px 2px !important;
-            border: 0px !important;
-            cursor: pointer !important;
-        }
-        .qs-main-classified-family-engine-name {
-            all: initial !important;
-            display: inline-block !important;
-            vertical-align: middle !important;
-            margin-right: 2px !important;
-            font-size: 13px !important;
-            font-family: arial,sans-serif !important;
-            font-weight: 400 !important;
-            color: #5F5F5F !important;
-            border: 0px !important;
-            cursor: pointer !important;
-        }
-        .qs-main-help-info-box {
-            all: initial !important;
-            display: block !important;
-            text-align: center !important;
-            width: 100% !important;
-            margin: 5px 0px !important;
-            border: 0px !important;
-        }
-        .qs-main-help-info-item {
-            all: initial !important;
-            margin: 0px 10px !important;
-            font-size: 8px !important;
-            color: #DDD !important;
-            cursor: pointer !important;
-            text-decoration: none !important;
-        }
-        .qs-main-help-info-item:hover {
-            color: #4E71F2 !important;
-        }
+	/* 搜索框 */
+	.qs-main-search-input {
+		all: initial !important;
+		width: 100% !important;
+		height: 48px !important;
+		font-size: 18px !important;
+		padding: 0 18px !important;
+		border: 2px solid #e5e7eb !important;
+		border-radius: 12px !important;
+		outline: none !important;
+		transition: border-color 0.2s !important;
+	}
+	.qs-main-search-input:focus {
+		border-color: #3b82f6 !important;
+	}
 
-        /* 设置窗口 */
-        .qs-setting-box {
-            all: initial !important;
-            position: fixed !important;
-            display: block !important;
-            left: 50% !important;
-            top: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            width: fit-content !important;
-            height: fit-content !important;
-            padding: 10px !important;
-            border: 1px solid #F5F5F5 !important;
-            box-shadow: 0px 0px 6px #BBB !important;
-            border-radius: 10px !important;
-            background-color: #FFF !important;
-            opacity: 1 !important;
-            z-index: 40000 !important;
-        }
-        .qs-setting-config-textarea {
-            all: initial !important;
-            display: block !important;
-            width: 800px !important;
-            height: 650px !important;
-            padding: 5px !important;
-            white-space: pre !important;
-            overflow-wrap: normal !important;
-            font: 400 13.3333px Arial !important;
-            border: 1px solid #CCC !important;
-            border-radius: 5px !important;
-        }
-        .qs-setting-config-textarea:focus {
-            border-color: #4E71F2 !important;
-        }
-        .qs-setting-button-bar {
-            all: initial !important;
-            display: block !important;
-            width: 100% !important;
-            text-align: right !important;
-            border: 0px !important;
-        }
-        .qs-setting-button {
-            all: initial !important;
-            display: inline-block !important;
-            width: 60px !important;
-            margin: 10px 0px 5px 20px !important;
-            font-size: 13px !important;
-            color: #555 !important;
-            border: 0px !important;
-            cursor: pointer !important;
-        }
-        .qs-setting-button:hover {
-            color: #4E71F2 !important;
-        }
+	/* 常用引擎图标 */
+	.qs-main-frequent-box {
+		margin: 25px 0 15px !important;
+		text-align: center !important;
+	}
+	.qs-main-frequent-icon {
+		width: 36px !important;
+		height: 36px !important;
+		margin: 0 8px !important;
+		border-radius: 8px !important;
+		cursor: pointer !important;
+		transition: transform 0.15s !important;
+	}
+	.qs-main-frequent-icon:hover {
+		transform: scale(1.1) !important;
+	}
 
-        /* 信息提示浮层 */
-        .qs-info-tips-layer {
-            all: initial !important;
-            position: fixed !important;
-            display: block !important;
-            overflow: hidden !important;
-            bottom: 30px !important;
-            right: 30px !important;
-            width: fit-content !important;
-            height: fit-content !important;
-            padding: 10px !important;
-            font-size: 13px !important;
-            color: #FFF !important;
-            border: 0px !important;
-            border-radius: 3px !important;
-            background-color: rgba(0,0,0,0.7) !important;
-            z-index: 50000 !important;
-        }
+	/* ——— 横向分组核心 ——— */
+	.qs-main-classified-box {
+		display: flex !important;
+		flex-wrap: wrap !important;
+		gap: 30px !important;
+		justify-content: center !important;
+		margin-top: 25px !important;
+	}
+	.qs-main-classified-family-box {
+		flex: 0 1 auto !important;
+		min-width: 120px !important;
+		max-width: 200px !important;
+	}
+	.qs-main-classified-family-title {
+		font-size: 20px !important;
+		font-weight: 600 !important;
+		color: #374151 !important;
+		margin-bottom: 8px !important;
+		text-align: center !important;
+	}
+	.qs-main-classified-family-engine {
+		display: flex !important;
+		align-items: center !important;
+		margin: 6px 0 !important;
+		cursor: pointer !important;
+		padding: 4px 6px !important;
+		border-radius: 8px !important;
+		transition: background 0.15s !important;
+	}
+	.qs-main-classified-family-engine:hover {
+		background: #f3f4f6 !important;
+	}
+	.qs-main-classified-family-engine-icon {
+		width: 20px !important;
+		height: 20px !important;
+		margin-right: 8px !important;
+	}
+	.qs-main-classified-family-engine-name {
+		font-size: 15px !important;
+		color: #4b5563 !important;
+	}
 
-        /* 搜索建议浮层 */
-        .qs-suggestions-layer {
-            all: initial !important;
-            position: fixed !important;
-            display: block !important;
-            overflow: hidden !important;
-            height: fit-content !important;
-            border: 1px solid #F5F5F5 !important;
-            z-index: 30001 !important;
-        }
-        .qs-suggestion-item, .qs-suggestion-item-selected {
-            all: initial !important;
-            display: block !important;
-            text-align: left !important;
-            vertical-align: middle !important;
-            width: 100% !important;
-            height: 33px !important;
-            line-height: 33px !important;
-            padding-left: 13px !important;
-            font-size: 15px !important;
-            font-family: arial,sans-serif !important;
-            font-weight: 400 !important;
-            color: #555 !important;
-            border: 0px !important;
-            background-color: rgba(255,255,255,0.9) !important;
-        }
-        .qs-suggestion-item-selected {
-            background-color: rgba(230,230,230,0.9) !important;
-        }
-        .qs-suggestion-item:hover {
-            cursor: pointer !important;
-            background-color: rgba(230,230,230,0.9) !important;
-        }
-    `;
+	/* 底部菜单大字体 */
+	.qs-main-help-info-box {
+		margin-top: 30px !important;
+		text-align: center !important;
+		font-size: 16px !important;
+		font-weight: 500 !important;
+	}
+	.qs-main-help-info-item {
+		color: #3b82f6 !important;
+		margin: 0 12px !important;
+		cursor: pointer !important;
+		text-decoration: none !important;
+		transition: color 0.2s !important;
+	}
+	.qs-main-help-info-item:hover {
+		color: #1d4ed8 !important;
+		text-decoration: underline !important;
+	}
+
+	/* —— 其余原有样式（工具条/设置/提示层等）兼容 —— */
+	.qs-toolbar {
+		all: initial !important;
+		position: absolute !important;
+		display: block !important;
+		height: 26px !important;
+		padding: 2px !important;
+		white-space: nowrap !important;
+		border: 1px solid #F5F5F5 !important;
+		box-shadow: 0px 0px 2px #BBB !important;
+		background-color: #FFF !important;
+		z-index: 10000 !important;
+	}
+	.qs-toolbar-icon {
+		all: initial !important;
+		display: inline-block !important;
+		margin: 0px !important;
+		padding: 2px !important;
+		width: 20px !important;
+		height: 20px !important;
+		border: 1px solid #FFF !important;
+		cursor: pointer !important;
+	}
+	.qs-toolbar-icon:hover {
+		border: 1px solid #CCC !important;
+	}
+	.qs-setting-box,
+	.qs-info-tips-layer,
+	.qs-suggestions-layer {
+		/* 保持原有定义即可 */
+	}
+	`;
 
     ///////////////////////////////////////////////////////////////////
     // 全局变量
@@ -1428,7 +1043,8 @@
         var backgroundLayer = document.createElement('div');
         backgroundLayer.id = 'qs-main-background-layer';
         backgroundLayer.className = 'qs-main-background-layer';
-        backgroundLayer.style.setProperty('display', 'none', 'important');
+        backgroundLayer.addEventListener('click', hideMainBox, false); // ✅ 新增这行
+		backgroundLayer.style.setProperty('display', 'none', 'important');
         document.body.appendChild(backgroundLayer);
 
         // 快搜主窗口container
@@ -1550,6 +1166,16 @@
             showSettingBox();
         };
         helpInfoBox.appendChild(settingLink);
+		// ✅ 新增：工具条设置按钮
+		var toolbarSettingLink = document.createElement('a');
+		toolbarSettingLink.id = 'qs-main-help-info-toolbar-setting';
+		toolbarSettingLink.className = 'qs-main-help-info-item';
+		toolbarSettingLink.textContent = '工具条设置';
+		toolbarSettingLink.onclick = function (e) {
+			showToolbarEditor();
+		};
+		helpInfoBox.appendChild(toolbarSettingLink);
+		
 
         qsBackgroundLayer = backgroundLayer;
         qsMainBox = mainBox;
@@ -1991,7 +1617,98 @@
         }
     }
 
+	// ✅ 工具条设置弹窗
+	// ❗️ 仅定义逻辑，不立即创建 DOM
+	function showToolbarEditor() {
+		// 1. 先移除旧弹窗（如果已存在）
+		const old = document.getElementById('qs-toolbar-editor');
+		if (old) old.remove();
+
+		// 2. 创建并插入 DOM
+		const box = document.createElement('div');
+		box.id = 'qs-toolbar-editor';
+		box.className = 'qs-setting-box';
+		box.style.cssText = `
+			position: fixed !important;
+			top: 50% !important;
+			left: 50% !important;
+			transform: translate(-50%, -50%) !important;
+			width: 300px !important;
+			background: #fff !important;
+			border: 1px solid #ccc !important;
+			box-shadow: 0 0 10px rgba(0,0,0,0.3) !important;
+			padding: 15px !important;
+			z-index: 99999 !important;
+			font-family: Arial, sans-serif !important;
+			font-size: 14px !important;
+		`;
+		document.body.appendChild(box);
+
+		// 3. 标题
+		const title = document.createElement('div');
+		title.textContent = '编辑工具条网站';
+		title.style.cssText = 'font-weight: bold; margin-bottom: 10px;';
+		box.appendChild(title);
+
+		// 4. 网站列表
+		const list = document.createElement('div');
+		box.appendChild(list);
+		conf.frequentEngines.forEach((engine, i) => {
+			const label = document.createElement('label');
+			label.style.display = 'block';
+			label.style.margin = '4px 0';
+
+			const checkbox = document.createElement('input');
+			checkbox.type = 'checkbox';
+			checkbox.checked = engine.enable;
+			checkbox.onchange = () => {
+				conf.frequentEngines[i].enable = checkbox.checked;
+			};
+
+			label.appendChild(checkbox);
+			label.appendChild(document.createTextNode(engine.name));
+			list.appendChild(label);
+		});
+
+		// 5. 按钮区
+		const addBtn = document.createElement('button');
+		addBtn.textContent = '+ 添加网站';
+		addBtn.onclick = () => {
+			const name = prompt('网站名称：');
+			const url = prompt('搜索URL（用 %s 代替关键词）：');
+			const icon = prompt('图标URL（如 favicon.ico）：');
+			if (name && url && icon) {
+				conf.frequentEngines.push({ name, url, icon, home: '', enable: true });
+				showToolbarEditor(); // 重新渲染
+			}
+		};
+		box.appendChild(addBtn);
+
+		const saveBtn = document.createElement('button');
+		saveBtn.textContent = '保存';
+		saveBtn.style.marginLeft = '10px';
+		saveBtn.onclick = () => {
+			GM_setValue('qs-conf', conf);
+			if (qsToolbar) {
+				qsToolbar.remove();
+				createToolbar();
+			}
+			box.remove(); // 关闭弹窗
+		};
+		box.appendChild(saveBtn);
+
+		const cancelBtn = document.createElement('button');
+		cancelBtn.textContent = '取消';
+		cancelBtn.style.marginLeft = '10px';
+		cancelBtn.onclick = () => box.remove(); // 关闭弹窗
+		box.appendChild(cancelBtn);
+	}
+
+
     initQuickSearch();
+	// ✅ 全局调用：仅由菜单按钮触发
+	window.showToolbarEditor = showToolbarEditor;
+
 
     ///////////////////////////////////////////////////////////////////
     // 全局事件响应
