@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Onestep Search - 一键快搜
 // @namespace   https://greasyfork.org/zh-CN/scripts/440000
-// @version     2.1.2
+// @version     2.1.3
 // @author      eyinwei
 // @description 无缝集成 划词搜索 + 快捷键搜索 + 搜索跳转 + 网址导航, 享受丝滑搜索体验
 // @homepageURL https://github.com/eyinwei/Quick_Search
@@ -78,13 +78,13 @@
 	const Tianmao = new SiteInfo('天猫', 'https://list.tmall.com/search_product.htm?q=%s', 'https://www.tmall.com/', 'https://www.tmall.com/favicon.ico');
 	const Maimai = new SiteInfo('脉脉', 'https://maimai.cn/web/search_center?type=gossip&query=%s&highlight=true', 'https://maimai.cn/feed_list', 'https://maimai.cn/favicon.ico');
 	const Weibo = new SiteInfo('微博', 'https://s.weibo.com/weibo/%s', 'https://weibo.com/', 'https://s.weibo.com/favicon.ico');
-	const GitHub = new SiteInfo('GitHub', 'https://github.com/search?q=%s', 'https://s2.loli.net/2025/08/21/aYewd8c7RD6j2zu.png');
+	const GitHub = new SiteInfo('GitHub', 'https://github.com/search?q=%s', 'https://s2.loli.net/2025/08/21/r5gfHOTKXl1v96m.png');
 	const Sougou = new SiteInfo('搜狗', 'https://www.sogou.com/web?query=%s', 'https://dlweb.sogoucdn.com/translate/favicon.ico?v=20180424');
 	const So360 = new SiteInfo('360', 'https://www.so.com/s?ie=utf-8&q=%s', 'https://www.so.com/', 'https://s.ssl.qhimg.com/static/121a1737750aa53d.ico');
 	const Quora = new SiteInfo('Quora', 'https://www.quora.com/search?q=%s', 'https://www.quora.com/', 'https://favicon.im/www.quora.com');
 	const Wikipedia = new SiteInfo('维基百科', 'https://zh.wikipedia.org/wiki/%s', 'https://zh.wikipedia.org/', 'https://favicon.im/zh.wikipedia.org');
 	const Moegirl = new SiteInfo('萌娘百科', 'https://zh.moegirl.org/%s', 'https://zh.moegirl.org.cn/', 'https://zh.moegirl.org.cn/favicon.ico');
-	const Docin = new SiteInfo('豆丁文档', 'https://www.docin.com/search.do?searchcat=2&searchType_banner=p&nkey=%s', 'https://www.docin.com/', 'https://st.douding.cn/images_cn/topic/favicon.ico?rand=24220809');
+	const Docin = new SiteInfo('豆丁文档', 'https://www.docin.com/search.do?searchcat=2&searchType_banner=p&nkey=%s', 'https://www.docin.com/', 'https://www.docin.com/favicon.ico');
 	const DoubanBook = new SiteInfo('豆瓣读书', 'https://search.douban.com/book/subject_search?search_text=%s', 'https://book.douban.com/', 'https://www.douban.com/favicon.ico');
 	const WeixinSogou = new SiteInfo('微信(搜狗)', 'https://weixin.sogou.com/weixin?ie=utf8&type=2&query=%s', 'https://weixin.sogou.com/', 'https://dlweb.sogoucdn.com/translate/favicon.ico?v=20180424');
 	const Guokr = new SiteInfo('果壳', 'https://www.guokr.com/search/all/?wd=%s', 'https://www.guokr.com/', 'https://www.guokr.com/favicon.ico');
@@ -105,7 +105,6 @@
 	const NeteaseMusic = new SiteInfo('网易云音乐', 'https://music.163.com/#/search/m/?s=%s', 'https://music.163.com/', 'https://s1.music.126.net/style/favicon.ico?v20180823');
 	const QQMusic = new SiteInfo('QQ音乐', 'https://y.qq.com/portal/search.html#page=1&searchid=1&remoteplace=txt.yqq.top&t=song&w=%s', 'https://y.qq.com/', 'https://y.qq.com/favicon.ico?max_age=2592000');
 	const KuwoMusic = new SiteInfo('酷我音乐', 'http://www.kuwo.cn/search/list?type=all&key=%s', 'http://www.kuwo.cn/', 'http://www.kuwo.cn/favicon.ico');
-	const MiguMusic = new SiteInfo('咪咕音乐', 'https://music.migu.cn/v3', 'https://music.migu.cn/', 'https://music.migu.cn/favicon.ico');
 	const Kugou5sing = new SiteInfo('酷狗5sing', 'http://search.5sing.kugou.com/?keyword=%s', 'http://5sing.kugou.com/index.html', 'http://5sing.kugou.com/favicon.ico');
 	const Dangdang = new SiteInfo('当当', 'http://search.dangdang.com/?key=%s&act=input', 'http://www.dangdang.com/', 'http://www.dangdang.com/favicon.ico');
 	const Suning = new SiteInfo('苏宁', 'https://search.suning.com/%s/', 'https://www.suning.com/', 'https://www.suning.com/favicon.ico');
@@ -321,7 +320,6 @@
 					NeteaseMusic.callSiteInformation(),
 					QQMusic.callSiteInformation(),
 					KuwoMusic.callSiteInformation(),
-					MiguMusic.callSiteInformation(),
 					Kugou5sing.callSiteInformation()
 				]
 			},
@@ -529,7 +527,58 @@
 	.qs-toolbar-icon:hover {
 		border: 1px solid #CCC !important;
 	}
-	.qs-setting-box,
+	/* 在原有样式基础上添加以下设置窗口样式 */
+	.qs-setting-box {
+		all: initial !important;
+		position: fixed !important;
+		top: 50% !important;
+		left: 50% !important;
+		transform: translate(-50%, -50%) !important;
+		width: 80vw !important;
+		max-width: 800px !important;
+		max-height: 80vh !important;
+		background: #ffffff !important;
+		border-radius: 16px !important;
+		box-shadow: 0 12px 32px rgba(0,0,0,0.2) !important;
+		padding: 30px 40px 25px !important;
+		overflow-y: auto !important;
+		z-index: 40000 !important; /* 确保在遮罩层上方 */
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif !important;
+	}
+
+	/* 设置窗口内的标题样式 */
+	.qs-setting-box h3 {
+		font-size: 24px !important;
+		color: #374151 !important;
+		margin: 0 0 20px !important;
+		padding: 0 !important;
+	}
+
+	/* 设置窗口内的文本区域样式 */
+	.qs-setting-box textarea {
+		width: 100% !important;
+		min-height: 300px !important;
+		font-size: 14px !important; /* 增大字体 */
+		padding: 15px !important;
+		border: 2px solid #e5e7eb !important;
+		border-radius: 12px !important;
+		margin-bottom: 20px !important;
+		resize: vertical !important;
+	}
+
+	/* 设置窗口内的按钮样式 */
+	.qs-setting-box button {
+		font-size: 14px !important;
+		padding: 10px 15px !important;
+		margin-right: 10px !important;
+		border-radius: 8px !important;
+		cursor: pointer !important;
+		border: none !important;
+	}
+
+	.qs-setting-box button:hover {
+		opacity: 0.9 !important;
+	}
 	.qs-info-tips-layer,
 	.qs-suggestions-layer {
 		/* 保持原有定义即可 */
