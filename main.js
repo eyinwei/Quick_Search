@@ -1147,14 +1147,7 @@
         homeLink.href = 'https://github.com/eyinwei/Quick_Search';
         homeLink.target = '_blank';
         helpInfoBox.appendChild(homeLink);
-        // 帮助
-        var helpLink = document.createElement('a');
-        helpLink.id = 'qs-main-help-info-help';
-        helpLink.className = 'qs-main-help-info-item';
-        helpLink.textContent = '帮助';
-        helpLink.href = 'https://github.com/eyinwei/Quick_Search/README.md';
-        helpLink.target = '_blank';
-        helpInfoBox.appendChild(helpLink);
+
         // 设置
         var settingLink = document.createElement('a');
         settingLink.id = 'qs-main-help-info-setting';
