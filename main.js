@@ -1746,7 +1746,7 @@
 		box.appendChild(cancelBtn);
 	}
 
-	GM_setValue('qs-conf', defaultConf); // 🔥 强制重置配置
+	//GM_setValue('qs-conf', defaultConf); // 🔥 强制重置配置
     initQuickSearch();
 	// ✅ 全局调用：仅由菜单按钮触发
 	window.showToolbarEditor = showToolbarEditor;
