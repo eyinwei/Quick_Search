@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Onestep Search - 一键快搜
 // @namespace   https://greasyfork.org/zh-CN/scripts/440000
-// @version     2.1.3
+// @version     2.1.4
 // @author      eyinwei
 // @description 无缝集成 划词搜索 + 快捷键搜索 + 搜索跳转 + 网址导航, 享受丝滑搜索体验
 // @homepageURL https://github.com/eyinwei/Quick_Search
@@ -19,8 +19,10 @@
 
 
 
+
 (function () {
     'use strict';
+
 
     ///////////////////////////////////////////////////////////////////
     // 配置
@@ -78,8 +80,8 @@
 	const Tianmao = new SiteInfo('天猫', 'https://list.tmall.com/search_product.htm?q=%s', 'https://www.tmall.com/', 'https://www.tmall.com/favicon.ico');
 	const Maimai = new SiteInfo('脉脉', 'https://maimai.cn/web/search_center?type=gossip&query=%s&highlight=true', 'https://maimai.cn/feed_list', 'https://maimai.cn/favicon.ico');
 	const Weibo = new SiteInfo('微博', 'https://s.weibo.com/weibo/%s', 'https://weibo.com/', 'https://s.weibo.com/favicon.ico');
-	const GitHub = new SiteInfo('GitHub', 'https://github.com/search?q=%s', 'https://s2.loli.net/2025/08/21/r5gfHOTKXl1v96m.png');
-	const Sougou = new SiteInfo('搜狗', 'https://www.sogou.com/web?query=%s', 'https://dlweb.sogoucdn.com/translate/favicon.ico?v=20180424');
+	const GitHub = new SiteInfo('GitHub', 'https://github.com/search?q=%s', 'https://favicon.im/github.com');
+	const Sougou = new SiteInfo('搜狗', 'https://www.sogou.com/web?query=%s', 'https://favicon.im/www.sogou.com');
 	const So360 = new SiteInfo('360', 'https://www.so.com/s?ie=utf-8&q=%s', 'https://www.so.com/', 'https://s.ssl.qhimg.com/static/121a1737750aa53d.ico');
 	const Quora = new SiteInfo('Quora', 'https://www.quora.com/search?q=%s', 'https://www.quora.com/', 'https://favicon.im/www.quora.com');
 	const Wikipedia = new SiteInfo('维基百科', 'https://zh.wikipedia.org/wiki/%s', 'https://zh.wikipedia.org/', 'https://favicon.im/zh.wikipedia.org');
@@ -1744,7 +1746,7 @@
 		box.appendChild(cancelBtn);
 	}
 
-
+	GM_setValue('qs-conf', defaultConf); // 🔥 强制重置配置
     initQuickSearch();
 	// ✅ 全局调用：仅由菜单按钮触发
 	window.showToolbarEditor = showToolbarEditor;
